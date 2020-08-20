@@ -1,0 +1,14 @@
+//IBMUSERA  JOB ACCT#,                                                  
+//             IBMUSER,                                                 
+//             NOTIFY=IBMUSER,                                          
+//             MSGLEVEL=(1,1)                                           
+//*                                                                     
+//**********************************************************************
+//*                                                                    *
+//* JCL : EXECUTA UM PROGRAMA ASSEMBLER PROBLEM                        *
+//*                                                                    *
+//**********************************************************************
+//*                                                                     
+//EXECUTA  EXEC PGM=RANDOM,PARM='000001000002000001'                    
+//STEPLIB  DD   DISP=SHR,DSN=DEVP.ASM.LOADLIB                           
+//SYSMDUMP DD   DISP=SHR,DSN=DEVP.ASM.DUMPDD                            

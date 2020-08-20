@@ -1,0 +1,52 @@
+//ASMCLPP PROC FONTE=,    * NOME DO MEMBRO PARA COMPILAR                
+//             COMPARM=,  * PARAMETROS PARA COMPILACAO                  
+//             LEDPARM=   * PARAMETROS PARA LINKEDICAO                  
+//*                                                                     
+//**********************************************************************
+//*                                                                    *
+//* FASE: COMPILADOR ASSM                                              *
+//*                                                                    *
+//**********************************************************************
+//*                                                                     
+//ASM      EXEC PGM=ASMA90,PARM='&COMPARM'                              
+//SYSIN    DD  DSN=DEVP.ASM.SRCLIB(&FONTE),DISP=(SHR)                   
+//SYSLIB   DD  DSN=SYS1.MACLIB,DISP=SHR                                 
+//         DD  DSN=DEVP.ASM.MACLIB,DISP=SHR                             
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSPUNCH DD  DUMMY                                                    
+//SYSLIN   DD  DSN=&&OBJ,SPACE=(3040,(40,40),,,ROUND),UNIT=VIO,         
+//             DISP=(MOD,PASS),                                         
+//             DCB=(BLKSIZE=3040,LRECL=80,RECFM=FBS,BUFNO=1)            
+//SYSTERM  DD  SYSOUT=*                                                 
+//SYSUT1   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT2   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT3   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT4   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT5   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT6   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//SYSUT7   DD  UNIT=VIO,SPACE=(CYL,(1,1))                               
+//*                                                                     
+//**********************************************************************
+//*                                                                    *
+//* FASE: LINK EDITOR                                                  *
+//*                                                                    *
+//**********************************************************************
+//*                                                                     
+//LKED     EXEC PGM=HEWL,PARM='&LEDPARM',REGION=512K,                   
+//             COND=(4,LT)                                              
+//SYSLIN   DD  DSN=&&OBJ,DISP=(OLD,DELETE)                              
+//         DD  DDNAME=SYSIN                                             
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSLMOD  DD  DISP=SHR,DSN=DEVP.ASM.LOADLIB(&FONTE)                    
+//SYSLIB   DD  DSNAME=CEE.SCEELKED,DISP=SHR                             
+//         DD  DSNAME=CEE.SCEERUN,DISP=SHR                              
+//         DD  DSNAME=DEVP.ASM.LOADLIB,DISP=SHR                         
+//         DD  DSNAME=DEVP.ASM.LOADLIB.APF,DISP=SHR                     
+//SYSUT1   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT2   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT3   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT4   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT5   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT6   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSUT7   DD  SPACE=(1800,(1000,1000),,,ROUND),UNIT=3390               
+//SYSIN    DD  DUMMY                                                    

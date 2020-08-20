@@ -1,0 +1,127 @@
+RANDOM   RSECT                                                          
+RANDOM   AMODE 31                                                       
+RANDOM   RMODE ANY                                                      
+         STM   R14,R12,12(R13)                                          
+         USING RANDOM,R12                                               
+         LR    R12,R15                                                  
+         LR    R3,R13                                                   
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         STORAGE OBTAIN,                                               X
+               LENGTH=WLENGTH,                                         X
+               ADDR=(R13)                                               
+         USING WORKAREA,R13                                             
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         ST    R3,4(,R13)                                               
+         ST    R13,8(,R3)                                               
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         L     R2,24(,R3)                                               
+         L     R2,0(,R2)                                                
+                  USING WORKPARM,R2                                              
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         LH    R3,TAMPARM                                               
+         CLIBNE R3,WLENGPR-2,ERRO1                                      
+         LAY   R3,-1(,R3)                                               
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         EX    R3,EXTRT01                                               
+         BNZ   ERRO2                                                    
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         LA    R4,WNUMMIN                                               
+         LA    R3,L'WNUMMIN-1                                           
+         EX    R3,EXPCK01                                               
+         CVB   R3,WPACK                                                 
+         ST    R3,WBMIN                                                 
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         LA    R4,WNUMMAX                                               
+         LA    R3,L'WNUMMAX-1                                           
+         EX    R3,EXPCK01                                               
+         CVB   R3,WPACK                                                 
+                  ST    R3,WBMAX                                                 
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         LA    R4,WQTDNUM                                               
+         LA    R3,L'WQTDNUM-1                                           
+         EX    R3,EXPCK01                                               
+         CVB   R3,WPACK                                                 
+         ST    R3,WBQTD                                                 
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+         L     R8,WBQTD                                                 
+LOOP     DS    0H                                                       
+         STCKE WSEED                                                    
+         L     R3,WBMAX                                                 
+         XGR   R4,R4                                                    
+         L     R5,WSEED+8                                               
+         DR    R4,R3                                                    
+         L     R5,WBMIN                                                 
+         AR    R5,R4                                                    
+         CVD   R5,WNUMDEC                                               
+         UNPK  WNUMZON(13),WNUMDEC+2(6)                                 
+                  OI    WNUMZON+12,X'F0'                                         
+         MVC   WTO01+10(13),WNUMZON                                     
+WTO01    WTO   'N=XXXXXXXXXXXXXY'                                       
+         BCT   R8,LOOP                                                  
+         B     FIMEND                                                   
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+ERRO1    DS    0H                                                       
+         WTO   'ERRO NO TAMANHO DO PARAMETRO'                           
+         B     FIMEND                                                   
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+ERRO2    DS    0H                                                       
+         WTO   'ERRO PARAMETRO NAO NUMERICO'                            
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+FIMEND   DS    0H                                                       
+         L     R13,4(,R13)                                              
+         LM    R14,R12,12(R13)                                          
+         XR    R15,R15                                                  
+         BR    R14                                                      
+EXTRT01  TRT   WNUMMIN(0),LVERNUM                                       
+EXPCK01  PACK  WPACK+2(6),0(0,R4)                                       
+         DROP  R12                                                      
+*---------------------------------------------------------------------* 
+*        LITERAIS                                                     * 
+*---------------------------------------------------------------------* 
+         LTORG                                                          
+LVERNUM  DC 256X'FF'                                                    
+         ORG   LVERNUM+C'0'                                             
+         DC  10X'00'                                                    
+         ORG ,                                                          
+*---------------------------------------------------------------------* 
+*        WORK                                                         * 
+*---------------------------------------------------------------------* 
+WORKAREA DSECT                                                          
+SAVEAREA DC  18F'0'                                                     
+WSEED    DS    XL16                                                     
+WNUMDEC  DS    PL8                                                      
+WNUMZON  DS    ZL13                                                     
+WPACK    DS    PL8                                                      
+WBMIN    DS    F                                                        
+WBMAX    DS    F                                                        
+WBQTD    DS    F                                                        
+WLENGTH  EQU   *-WORKAREA                                               
+*---------------------------------------------------------------------* 
+*        PARAMETROS                                                   * 
+*---------------------------------------------------------------------* 
+WORKPARM DSECT                                                          
+TAMPARM  DS    H                                                        
+WNUMMIN  DS    ZL6                                                      
+WNUMMAX  DS    ZL6                                                      
+WQTDNUM  DS    ZL4                                                      
+WLENGPR  EQU   *-WORKPARM                                               
+*---------------------------------------------------------------------* 
+*        EQUATES                                                      * 
+*---------------------------------------------------------------------* 
+R0       EQU   0                                                        
+R1       EQU   1                                                        
+R2       EQU   2                                                        
+R3       EQU   3                                                        
+R4       EQU   4                                                        
+R5       EQU   5                                                        
+R6       EQU   6                                                        
+R7       EQU   7                                                        
+R8       EQU   8                                                        
+R9       EQU   9                                                        
+R10      EQU   10                                                       
+R11      EQU   11                                                       
+R12      EQU   12                                                       
+R13      EQU   13                                                       
+R14      EQU   14                                                       
+R15      EQU   15                                                       
+         END   RANDOM                                                   

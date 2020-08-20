@@ -1,0 +1,421 @@
+MISH01   RSECT                                                    *   @         
+MISH01   AMODE 31                                                 *   @         
+MISH01   RMODE ANY                                                *   @         
+         USING MISH01,R15                                         *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R2,R2,32                                           *   @         
+         LTR   R2,R2                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         LR    R2,R0                                              *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R3,R3,32                                           *   @         
+         LTR   R3,R3                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         LR    R3,R1                                              *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R4,R4,32                                           *   @         
+         LTR   R4,R4                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         LR    R4,R14                                             *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R5,R5,32                                           *   @         
+         LTR   R5,R5                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         RLLG  R14,R14,32                                         *   @         
+         LR    R5,R14                                             *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R6,R6,32                                           *   @         
+         LTR   R6,R6                                              *   @         
+         BC    6,MISHABN                                          *   @         
+*                                                                 *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R7,R7,32                                           *   @         
+         LTR   R7,R7                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         LR    R7,R13                                             *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R8,R8,32                                           *   @         
+         LTR   R8,R8                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         RLLG  R0,R0,32                                           *   @         
+         LR    R8,R0                                              *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R9,R9,32                                           *   @         
+         LTR   R9,R9                                              *   @         
+         BC    6,MISHABN                                          *   @         
+         RLLG  R1,R1,32                                           *   @         
+         LR    R9,R1                                              *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R10,R10,32                                         *   @         
+         LTR   R10,R10                                            *   @         
+         BC    6,MISHABN                                          *   @         
+         LR    R10,R12                                            *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         LR    R12,R15                                            *   @         
+         DROP  R15                                                *   @         
+         USING MISH01,R12                                         *   @         
+         RLLG  R15,R15,32                                         *   @         
+         LR    R6,R15                                             *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         STORAGE OBTAIN,                                          *   @X        
+               ADDR=(R13),                                        *   @X        
+               LENGTH=WRKMISHL,                                   *   @X        
+               COND=YES,                                          *   @X        
+               RTCD=(R15),                                        *   @X        
+               LINKAGE=SYSTEM                                     *   @         
+         CLIJNE R15,0,MISHABN                                     *   @         
+         USING WRKMISH,R13                                        *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         ST    R5,WSRGR14                                         *   @         
+         ST    R5,WREGR14                                         *   @         
+*                                                                 *   @         
+         ST    R6,WSRGR15                                         *   @         
+         ST    R6,WREGR15                                         *   @         
+*                                                                 *   @         
+         ST    R8,WSRGR00                                         *   @         
+         ST    R8,WREGR00                                         *   @         
+*                                                                 *   @         
+         ST    R9,WSRGR01                                         *   @         
+         ST    R9,WREGR01                                         *   @         
+*                                                                 *   @         
+         RLLG  R2,R2,32                                           *   @         
+         ST    R2,WSRGR02                                         *   @         
+         ST    R2,WREGR02                                         *   @         
+*                                                                 *   @         
+         RLLG  R3,R3,32                                           *   @         
+         ST    R3,WSRGR03                                         *   @         
+         ST    R3,WREGR03                                         *   @         
+*                                                                 *   @         
+         RLLG  R4,R4,32                                           *   @         
+         ST    R4,WSRGR04                                         *   @         
+         ST    R4,WREGR04                                         *   @         
+*                                                                 *   @         
+         RLLG  R5,R5,32                                           *   @         
+         ST    R5,WSRGR05                                         *   @         
+         ST    R5,WREGR05                                         *   @         
+*                                                                 *   @         
+         RLLG  R6,R6,32                                           *   @         
+         ST    R6,WSRGR06                                         *   @         
+         ST    R6,WREGR06                                         *   @         
+*                                                                 *   @         
+         RLLG  R7,R7,32                                           *   @         
+         ST    R7,WSRGR07                                         *   @         
+         ST    R7,WREGR07                                         *   @         
+*                                                                 *   @         
+         RLLG  R8,R8,32                                           *   @         
+         ST    R8,WSRGR08                                         *   @         
+         ST    R8,WREGR08                                         *   @         
+*                                                                 *   @         
+         RLLG  R9,R9,32                                           *   @         
+         ST    R9,WSRGR09                                         *   @         
+         ST    R9,WREGR09                                         *   @         
+*                                                                 *   @         
+         RLLG  R10,R10,32                                         *   @         
+         ST    R10,WSRGR10                                        *   @         
+         ST    R10,WREGR10                                        *   @         
+*                                                                 *   @         
+         ST    R11,WSRGR11                                        *   @         
+         ST    R11,WREGR11                                        *   @         
+*                                                                 *   @         
+         RLLG  R10,R10,32                                         *   @         
+         ST    R10,WSRGR12                                        *   @         
+         ST    R10,WREGR12                                        *   @         
+*                                                                 *   @         
+         RLLG  R7,R7,32                                           *   @         
+         ST    R7,WREGR13                                         *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         RLLG  R2,R2,32                                           *   @         
+         ST    R2,WENDINI                                         *   @         
+*                                                                 *   @         
+         RLLG  R3,R3,32                                           *   @         
+         STH   R3,WQTDBYTE                                        *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         ST    R7,WSRANT                                          *   @         
+*                                                                 *   @         
+         RLLG  R4,R4,32                                           *   @         
+         ST    R4,WSRPRO                                          *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         LMH   R0,R15,=16F'0'                                     *   @         
+         MVC   WWTO(LWTOL),LWTO                                   *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         LA    R15,SHWREGS                                        *   @         
+         BASR  R11,R15                                            *   @         
+         LA    R15,SHWMEMO                                        *   @         
+         BASR  R11,R15                                            *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+         LA    R10,WSAVERET                                       *   @         
+         LMH   R0,R15,=16F'0'                                     *   @         
+         LM    R14,R12,12(R10)                                    *   @         
+         RLLG  R14,R14,32                                         *   @         
+         L     R14,WSRPRO                                         *   @         
+         L     R13,WSRANT                                         *   @         
+         BR    R14                                                *   @         
+*-----------------------------------------------------------------*   @         
+*        EXIBE OS REGISTRADORES DO CHAMADOR                       *   @         
+*-----------------------------------------------------------------*   @         
+SHWREGS  DS   0H                                                  *   @         
+         LA    R3,WREGEXI                                         *   @         
+         LA    R5,4                                               *   @         
+         XR    R7,R7                                              *   @         
+*-----------------------------------------------------------------*   @         
+*        TRADUZ TCB                                               *   @         
+*-----------------------------------------------------------------*   @         
+LOOPR01  DS   0H                                                  *   @         
+         LA    R4,MRXID                                           *   @         
+         LA    R6,4                                               *   @         
+*                                                                 *   @         
+         L     R1,16                                              *   @         
+         L     R1,0(,R1)                                          *   @         
+         L     R1,4(,R1)                                          *   @         
+         ST    R1,WXREG                                           *   @         
+*                                                                 *   @         
+         UNPK  WXUNPK(9),WXREG(5)                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         XC    WCMSG,WCMSG                                        *   @         
+         MVC   WCMSG(L'MREGX),MREGX                               *   @         
+         MVC   0(L'MRXID,R4),WXUNPK+(L'WXUNPK-L'MRXID)            *   @         
+*                                                                 *   @         
+         LA    R4,MR1RN                                           *   @         
+*-----------------------------------------------------------------*   @         
+*        TRADUZ REGS                                              *   @         
+*-----------------------------------------------------------------*   @         
+LOOPR02  DS   0H                                                  *   @         
+         CVD   R7,WXUNPK                                          *   @         
+         MVC   WXREG(4),WXUNPK+4                                  *   @         
+*                                                                 *   @         
+         UNPK  WXUNPK(9),WXREG(5)                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         MVC   0(L'MR1RN,R4),WXUNPK+(L'WXUNPK-L'MR1RN-1)          *   @         
+         LA    R4,L'MR1RN(,R4)                                    *   @         
+         LA    R4,1(,R4)                                          *   @         
+*                                                                 *   @         
+         L     R1,0(,R3)                                          *   @         
+         ST    R1,WXREG                                           *   @         
+*                                                                 *   @         
+         UNPK  WXUNPK(9),WXREG(5)                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         MVC   0(L'MR1RC,R4),WXUNPK+(L'WXUNPK-L'MR1RC)            *   @         
+         LA    R4,L'MR1RC(,R4)                                    *   @         
+         LA    R4,3(,R4)                                          *   @         
+         LA    R3,4(,R3)                                          *   @         
+         LA    R7,1(,R7)                                          *   @         
+*                                                                 *   @         
+         BCT   R6,LOOPR02                                         *   @         
+*                                                                 *   @         
+         MVC   WTMSG,=AL2(L'WCMSG)                                *   @         
+         LA    R15,WTMSG                                          *   @         
+         WTO   TEXT=(R15),                                        *   @X        
+               MF=(E,WWTO)                                        *   @         
+*                                                                 *   @         
+         BCT   R5,LOOPR01                                         *   @         
+*                                                                 *   @         
+         BR    R11                                                *   @         
+*-----------------------------------------------------------------*   @         
+*        EXIBE A MEMORIA DO CHAMADOR                              *   @         
+*-----------------------------------------------------------------*   @         
+SHWMEMO  DS   0H                                                  *   @         
+         L     R3,WENDINI      * ENDERECO                         *   @         
+         LH    R4,WQTDBYTE     * NRO DE BYTES                     *   @         
+*-----------------------------------------------------------------*   @         
+*        TRADUZ TCB                                               *   @         
+*-----------------------------------------------------------------*   @         
+LOOPQ01  DS   0H                                                  *   @         
+         L     R1,16                                              *   @         
+         L     R1,0(,R1)                                          *   @         
+         L     R1,4(,R1)                                          *   @         
+         ST    R1,WXREG                                           *   @         
+*                                                                 *   @         
+         UNPK  WXUNPK(9),WXREG(5)                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         XC    WCMSG,WCMSG                                        *   @         
+         MVC   WCMSG(L'MMEMX),MMEMX                               *   @         
+         MVC   MQXID,WXUNPK+(L'WXUNPK-L'MQXID)                    *   @         
+*-----------------------------------------------------------------*   @         
+*        TRADUZ ENDERECO                                          *   @         
+*-----------------------------------------------------------------*   @         
+         ST    R3,WXREG                                           *   @         
+*                                                                 *   @         
+         UNPK  WXUNPK(9),WXREG(5)                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         MVC   MQXMM,WXUNPK+(L'WXUNPK-L'MQXMM)                    *   @         
+*-----------------------------------------------------------------*   @         
+*        MOVE MEMORIA SEM TRADUZIR                                *   @         
+*-----------------------------------------------------------------*   @         
+         LA    R5,MQ1RH                                           *   @         
+         LA    R6,MQ1RC                                           *   @         
+         LA    R8,3                                               *   @         
+         CLIBH R4,8,LOOPQ02                                       *   @         
+         LA    R8,2                                               *   @         
+         CLIBH R4,4,LOOPQ02                                       *   @         
+         LA    R8,1                                               *   @         
+*                                                                 *   @         
+LOOPQ02  DS   0H                                                  *   @         
+         LA    R7,4                                               *   @         
+         CLIBH R4,4,QUZBTS                                        *   @         
+         LR    R7,R4                                              *   @         
+*                                                                 *   @         
+QUZBTS   DS   0H                                                  *   @         
+         LAY   R7,-1(,R7)                                         *   @         
+         EX    R7,MVC001                                          *   @         
+         LA    R6,1(R7,R6)                                        *   @         
+*-----------------------------------------------------------------*   @         
+*        MOVE MEMORIA TRADUZIDA                                   *   @         
+*-----------------------------------------------------------------*   @         
+         LA    R7,4                                               *   @         
+         CLIBH R4,4,DOZBTS                                        *   @         
+         LR    R7,R4                                              *   @         
+*                                                                 *   @         
+DOZBTS   DS   0H                                                  *   @         
+         LAY   R7,-1(,R7)                                         *   @         
+         EX    R7,MVC002                                          *   @         
+         LA    R7,1(,R7)                                          *   @         
+         LA    R3,0(R7,R3)                                        *   @         
+         SR    R4,R7                                              *   @         
+*                                                                 *   @         
+         EX    R7,UNPK01                                          *   @         
+*                                                                 *   @         
+         NC    WXUNPK,XTR1                                        *   @         
+         TR    WXUNPK,XTR2                                        *   @         
+*                                                                 *   @         
+         SLL   R7,1                                               *   @         
+         LAY   R7,-1(,R7)                                         *   @         
+         EX    R7,MVC003                                          *   @         
+         LA    R5,1(R7,R5)                                        *   @         
+         BCT   R8,LOOPQ02                                         *   @         
+*                                                                 *   @         
+         MVC   WTMSG,=AL2(L'WCMSG)                                *   @         
+         LA    R15,WTMSG                                          *   @         
+         WTO   TEXT=(R15),                                        *   @X        
+               MF=(E,WWTO)                                        *   @         
+*                                                                 *   @         
+         CLIBH R4,0,LOOPQ01                                       *   @         
+*                                                                 *   @         
+         BR    R11                                                *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+MVC001   MVC   0(0,R6),0(R3)                                      *   @         
+MVC002   MVC   WXREG(0),0(R3)                                     *   @         
+MVC003   MVC   0(0,R5),WXUNPK                                     *   @         
+UNPK01   UNPK  WXUNPK(9),WXREG(0)                                 *   @         
+*        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                        *   @         
+MISHABN  DS   0H                                                  *   @         
+         ABEND 2,DUMP                                             *   @         
+*-----------------------------------------------------------------*   @         
+*        AREA DE LITERAIS                                         *   @         
+*-----------------------------------------------------------------*   @         
+         LTORG                                                    *   @         
+*                                                                 *   @         
+XTR1     DC    X'0F0F0F0F0F0F0F0F'                                *   @         
+XTR2     DC    C'0123456789ABCDEF'                                *   @         
+*                                                                 *   @         
+LWTO     WTO   TEXT=,MF=L                                         *   @         
+LWTOL    EQU   *-LWTO                                             *   @         
+*                123456789012345678901234567890123456789012345678901234         
+MREGX    DC    C'TCB=XXXXXX GRXX=XXXXXXXX GRXX=XXXXXXXX GRXX=XXXXXXXX G-        
+               RXX=XXXXXXXX'                                      *   @         
+*              567890123456'                                                    
+MRXID    EQU   WCMSG+4,6                                          *   @         
+MR1RN    EQU   WCMSG+13,2                                         *   @         
+MR1RC    EQU   WCMSG+16,8                                         *   @         
+MR2RN    EQU   WCMSG+27,2                                         *   @         
+MR2RC    EQU   WCMSG+30,8                                         *   @         
+MR3RN    EQU   WCMSG+41,2                                         *   @         
+MR3RC    EQU   WCMSG+44,8                                         *   @         
+MR4RN    EQU   WCMSG+55,2                                         *   @         
+MR4RC    EQU   WCMSG+58,8                                         *   @         
+*                123456789012345678901234567890123456789012345678901234         
+MMEMX    DC    C'TCB=XXXXXX - XXXXXXXX - XXXXXXXXXXXXXXXXXXXXXXXX - XXX-        
+               XXXXXXXXX +='                                      *   @         
+*              567890123456'                                                    
+MQXID    EQU   WCMSG+4,6                                          *   @         
+MQXMM    EQU   WCMSG+13,8                                         *   @         
+MQ1RH    EQU   WCMSG+24,24                                        *   @         
+MQ1RC    EQU   WCMSG+51,12                                        *   @         
+*-----------------------------------------------------------------*   @         
+*        AREA DE WORKING                                          *   @         
+*-----------------------------------------------------------------*   @         
+WRKMISH  DSECT                                                    *   @         
+WSAVEARE DS  18F                                                  *   @         
+*                                                                 *   @         
+WSAVERET DS   0F                                                  *   @         
+WSRRES   DS    F                                                  *   @         
+WSRANT   DS    F                                                  *   @         
+WSRPRO   DS    F                                                  *   @         
+WSRGR14  DS    F                                                  *   @         
+WSRGR15  DS    F                                                  *   @         
+WSRGR00  DS    F                                                  *   @         
+WSRGR01  DS    F                                                  *   @         
+WSRGR02  DS    F                                                  *   @         
+WSRGR03  DS    F                                                  *   @         
+WSRGR04  DS    F                                                  *   @         
+WSRGR05  DS    F                                                  *   @         
+WSRGR06  DS    F                                                  *   @         
+WSRGR07  DS    F                                                  *   @         
+WSRGR08  DS    F                                                  *   @         
+WSRGR09  DS    F                                                  *   @         
+WSRGR10  DS    F                                                  *   @         
+WSRGR11  DS    F                                                  *   @         
+WSRGR12  DS    F                                                  *   @         
+*                                                                 *   @         
+WREGEXI  DS   0F                                                  *   @         
+WREGR00  DS    F                                                  *   @         
+WREGR01  DS    F                                                  *   @         
+WREGR02  DS    F                                                  *   @         
+WREGR03  DS    F                                                  *   @         
+WREGR04  DS    F                                                  *   @         
+WREGR05  DS    F                                                  *   @         
+WREGR06  DS    F                                                  *   @         
+WREGR07  DS    F                                                  *   @         
+WREGR08  DS    F                                                  *   @         
+WREGR09  DS    F                                                  *   @         
+WREGR10  DS    F                                                  *   @         
+WREGR11  DS    F                                                  *   @         
+WREGR12  DS    F                                                  *   @         
+WREGR13  DS    F                                                  *   @         
+WREGR14  DS    F                                                  *   @         
+WREGR15  DS    F                                                  *   @         
+*                                                                 *   @         
+WXREG    DS    F                                                  *   @         
+         DS    CL1                                                *   @         
+WXUNPK   DS    CL8                                                *   @         
+         DS    CL1                                                *   @         
+*                                                                 *   @         
+WENDINI  DS    F                                                  *   @         
+WQTDBYTE DS    H                                                  *   @         
+WWTO     WTO   TEXT=,MF=L                                         *   @         
+WTWTO    EQU   *-WWTO                                             *   @         
+WTMSG    DS    H                                                  *   @         
+WCMSG    DS    CL66                                               *   @         
+WTTST    DS    H                                                  *   @         
+WCTST    DS    CL66                                               *   @         
+WRKMISHL EQU   *-WRKMISH                                          *   @         
+*-----------------------------------------------------------------*   @         
+*        EQUATES DE REGISTRADORES                                 *   @         
+*-----------------------------------------------------------------*   @         
+R0       EQU   0                                                  *   @         
+R1       EQU   1                                                  *   @         
+R2       EQU   2                                                  *   @         
+R3       EQU   3                                                  *   @         
+R4       EQU   4                                                  *   @         
+R5       EQU   5                                                  *   @         
+R6       EQU   6                                                  *   @         
+R7       EQU   7                                                  *   @         
+R8       EQU   8                                                  *   @         
+R9       EQU   9                                                  *   @         
+R10      EQU   10                                                 *   @         
+R11      EQU   11                                                 *   @         
+R12      EQU   12                                                 *   @         
+R13      EQU   13                                                 *   @         
+R14      EQU   14                                                 *   @         
+R15      EQU   15                                                 *   @         
+*-----------------------------------------------------------------*   @         
+         END   MISH01                                             *   @         

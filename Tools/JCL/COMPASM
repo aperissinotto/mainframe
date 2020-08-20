@@ -1,0 +1,17 @@
+//IBMUSERA  JOB ACCT#,                                                  
+//             IBMUSER,                                                 
+//             NOTIFY=IBMUSER,                                          
+//             MSGLEVEL=(1,1)                                           
+//*                                                                     
+//**********************************************************************
+//*                                                                    *
+//* JCL : COMPILA E LINK EDITA UM PROGRAMA ASSEMBLER PROBLEM           *
+//*                                                                    *
+//**********************************************************************
+//*                                                                     
+//MYLIBS    JCLLIB ORDER=DEVP.ASM.PROCLIB                               
+//*                                                                     
+//COMPASM  EXEC PROC=ASMCLPP,                                           
+// FONTE=RANDOM,                                                        
+// COMPARM='DECK,LIST,TEST,TERM,RENT,LINECOUNT(75),XREF(SHORT)',        
+// LEDPARM='RENT,LIST,XREF,LET,MAP,AMODE(31),RMODE(ANY)'                

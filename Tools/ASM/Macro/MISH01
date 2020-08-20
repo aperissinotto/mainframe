@@ -1,0 +1,77 @@
+.**********************************************************************         
+.* MACRO PARA EXIBIR CONTEUDO DOS REGISTRADORES E MEMORIA             *         
+.**********************************************************************         
+         MACRO                                                                  
+&LABEL   MISH01 &ENDINI=, .* ENDERECO DE INICIO, REG OU LABEL          X        
+               &QTDBYTE=  .* QUANTIDADE DE BYTES A EXIBIR                       
+.*       PRINT NOGEN                                                            
+.**********************************************************************         
+.* DECLARACAO DAS VARIAVEIS DA MACRO                                  *         
+.**********************************************************************         
+         LCLC  &CT                                                              
+.**********************************************************************         
+.* INICIALIZACAO DAS VARIAVEIS DA MACRO                               *         
+.**********************************************************************         
+&CT      SETC  '&SYSNDX'                                                        
+.**********************************************************************         
+.* SE ESTIVER EM AMODE64 ABENDA                                       *         
+.**********************************************************************         
+         TAM                                                                    
+         BC    1,ABND&CT                                                        
+.**********************************************************************         
+.* VALIDACAO DO PARAMETRO &ENDINI *                                             
+.**********************************************************************         
+         AIF   ('&ENDINI' EQ '').ERRO1                                          
+         AIF   ('&ENDINI'(1,1) NE '(').NEREG                                    
+         RLLG  0,0,32                                                           
+         LTR   0,0                                                              
+         BC    6,ABND&CT                                                        
+         LR    0,&ENDINI                                                        
+         AGO   .SEREG                                                           
+.NEREG   ANOP                                                                   
+         LAY   0,&ENDINI                                                        
+.**********************************************************************         
+.SEREG   ANOP                                                                   
+         RLLG  1,1,32                                                           
+         LTR   1,1                                                              
+         BC    6,ABND&CT                                                        
+.**********************************************************************         
+         RLLG  14,14,32                                                         
+         LTR   14,14                                                            
+         BC    6,ABND&CT                                                        
+.**********************************************************************         
+         RLLG  15,15,32                                                         
+         LTR   15,15                                                            
+         BC    6,ABND&CT                                                        
+.**********************************************************************         
+.* VALIDACAO DO PARAMETRO &QTDBYTE                                    *         
+.**********************************************************************         
+         AIF   ('&QTDBYTE' EQ '').ERRO3                                         
+         AIF   (T'&QTDBYTE NE 'N').ERRO4                                        
+         AIF   (K'&QTDBYTE GT 5).ERRO5                                          
+         AIF   (&QTDBYTE GT 65535).ERRO5                                        
+         LH    1,=H'&QTDBYTE'                                                   
+.**********************************************************************         
+.* CHAMA O MODULO *                                                             
+.**********************************************************************         
+         L     15,=V(MISH01)                                                    
+         BASR  14,15                                                            
+         XR    14,14                                                            
+         RLLG  14,14,32                                                         
+         B     PULA&CT                                                          
+ABND&CT  DS    0H                                                               
+         ABEND 1,DUMP                                                           
+PULA&CT  DS    0H                                                               
+         AGO   .FIM                                                             
+.**********************************************************************         
+.* MENSAGENS DE ERROS                                                 *         
+.**********************************************************************         
+.ERRO1   MNOTE 8,'ARGUMENTO PARA ENDINI EH OBRIGATORIO'                         
+         MEXIT                                                                  
+.ERRO3   MNOTE 8,'ARGUMENTO PARA QTDBYTE EH OBRIGATORIO'                        
+         MEXIT                                                                  
+.ERRO4   MNOTE 8,'ARGUMENTO PARA QTDBYTE COM TIPO INVALIDO'                     
+         MEXIT                                                                  
+.ERRO5   MNOTE 8,'ARGUMENTO PARA QTDBYTE COM TAMANHO INVALIDO'                  
+         MEXIT                                                                  
+.FIM     MEND                                                                   
