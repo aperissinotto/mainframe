@@ -1,0 +1,58 @@
+//CLKCASM  JOB 1,NOTIFY=&SYSUID                                         
+//*******************************************************************   
+//** STEP DE TRADUCAO CICS                                              
+//*******************************************************************   
+//TRN    EXEC PGM=DFHEAP1$,                                             
+//            PARM='CICS,SP',                                           
+//            REGION=0M                                                 
+//STEPLIB  DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSPUNCH DD DSN=&&SYSCIN,                                             
+//            DISP=(,PASS),UNIT=SYSDA,                                  
+//            DCB=BLKSIZE=400,                                          
+//            SPACE=(400,(400,100))                                     
+//SYSIN    DD  DSNAME=IBMUSER.ASMCIC.FONTES(CICICP),                    
+//             UNIT=SYSALLDA,DISP=SHR,DSNTYPE=LIBRARY                   
+//*******************************************************************   
+//** STEP DE COMPILACAO ASSEMBLER                                       
+//*******************************************************************   
+//ASM      EXEC PGM=ASMA90,REGION=0M,                                   
+//  PARM='DECK,NOOBJECT,LIST'                                           
+//SYSLIB   DD  DSN=SYS1.MACLIB,DISP=SHR                                 
+//         DD  DSN=DFH540.CICS.SDFHMAC,DISP=SHR                         
+//         DD  DSN=DFH540.CICS.SDFHSAMP,DISP=SHR                        
+//         DD  DSN=IBMUSER.ASMCIC.COPYBOOK,DISP=SHR                     
+//SYSUT1   DD  DSN=&&SYSUT1,SPACE=(16384,(120,120),,,ROUND),            
+//             UNIT=SYSALLDA,BUFNO=1                                    
+//SYSUT2   DD  DSN=&&SYSUT2,SPACE=(16384,(120,120),,,ROUND),            
+//             UNIT=SYSALLDA,BUFNO=1                                    
+//SYSUT3   DD  DSN=&&SYSUT3,SPACE=(16384,(120,120),,,ROUND),            
+//             UNIT=SYSALLDA,BUFNO=1                                    
+//SYSPUNCH DD  DSN=&&OBJ,SPACE=(3040,(40,40),,,ROUND),                  
+//             UNIT=SYSALLDA,DISP=(MOD,PASS),                           
+//             BLKSIZE=3040,LRECL=80,RECFM=FB,BUFNO=1                   
+//SYSPRINT DD  SYSOUT=*                                                 
+//SYSIN    DD DSN=&&SYSCIN,DISP=(OLD,DELETE)                            
+//*******************************************************************   
+//** STEP DE STUB CICS                                                  
+//*******************************************************************   
+//COPYLINK EXEC PGM=IEBGENER,REGION=0M                                  
+//SYSUT1   DD DSN=DFH540.CICS.SDFHSAMP(DFHEILID),DISP=SHR               
+//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS),                           
+//            DCB=(LRECL=80,BLKSIZE=400,RECFM=FB),                      
+//            UNIT=SYSDA,SPACE=(400,(20,20))                            
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSIN    DD DUMMY                                                     
+//*******************************************************************   
+//** STEP DE LINKEDICAO                                                 
+//*******************************************************************   
+//LKED   EXEC PGM=IEWL,REGION=0M,                                       
+//            PARM='LIST,XREF,AMODE(31),RMODE(ANY)'                     
+//SYSLIB   DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         
+//SYSLMOD  DD DSN=IBMUSER.ASMCIC.LOAD(CICICP),DISP=SHR                  
+//SYSUT1   DD UNIT=SYSDA,DCB=BLKSIZE=1024,                              
+//            SPACE=(1024,(200,20))                                     
+//SYSPRINT DD SYSOUT=*                        
+//SYSLIN   DD DSN=&&COPYLINK,DISP=(OLD,DELETE)
+//         DD DSN=&&OBJ,DISP=(OLD,DELETE)     
+//         DD DDNAME=SYSIN                    
