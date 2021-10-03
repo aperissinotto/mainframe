@@ -1,0 +1,69 @@
+//CLKCCOB6 JOB 1,NOTIFY=&SYSUID                                         
+//*******************************************************************   
+//** STEP DE TRADUCAO CICS                                              
+//*******************************************************************   
+//TRN    EXEC PGM=DFHECP1$,                                             
+//            PARM='COBOL3',                                            
+//            REGION=0M                                                 
+//STEPLIB  DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSPUNCH DD DSN=&&SYSCIN,                                             
+//            DISP=(,PASS),UNIT=SYSDA,                                  
+//            DCB=BLKSIZE=400,                                          
+//            SPACE=(400,(400,100))                                     
+//SYSIN    DD  DSNAME=IBMUSER.COBCIC.FONTES(PGM00001),                  
+//             UNIT=SYSALLDA,DISP=SHR,DSNTYPE=LIBRARY                   
+//*******************************************************************   
+//** STEP DE COMPILACAO COBOL                                           
+//*******************************************************************   
+//COB    EXEC PGM=IGYCRCTL,REGION=0M,                                   
+//       PARM='NODYNAM,OBJECT,RENT,APOST,MAP,XREF,LIST,OPT'             
+//STEPLIB  DD DSN=IGY630.SIGYCOMP,DISP=SHR                              
+//SYSLIB   DD DSN=DFH540.CICS.SDFHCOB,DISP=SHR                          
+//         DD DSN=DFH540.CICS.SDFHMAC,DISP=SHR                          
+//         DD DSN=DFH540.CICS.SDFHSAMP,DISP=SHR                         
+//         DD DSN=IBMUSER.COBCIC.COPYBOOK,DISP=SHR                      
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSIN    DD DSN=&&SYSCIN,DISP=(OLD,DELETE)                            
+//SYSLIN   DD DSN=&&LOADSET,DISP=(MOD,PASS),                            
+//            UNIT=SYSDA,SPACE=(80,(250,100))                           
+//SYSUT1   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT2   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT3   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT4   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT5   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT6   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT7   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT8   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT9   DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT10  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT11  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT12  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT13  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT14  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSUT15  DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//SYSMDECK DD UNIT=SYSDA,SPACE=(460,(350,100))                          
+//*******************************************************************   
+//** STEP DE STUB CICS                                                  
+//*******************************************************************   
+//COPYLINK EXEC PGM=IEBGENER,REGION=0M                                  
+//SYSUT1   DD DSN=DFH540.CICS.SDFHSAMP(DFHEILID),DISP=SHR               
+//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS),                           
+//            DCB=(LRECL=80,BLKSIZE=400,RECFM=FB),                      
+//            UNIT=SYSDA,SPACE=(400,(20,20))                            
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSIN    DD DUMMY                                                     
+//*******************************************************************   
+//** STEP DE LINKEDICAO                                                 
+//*******************************************************************   
+//LKED   EXEC PGM=IEWL,REGION=0M,                                       
+//            PARM='LIST,XREF'                                          
+//SYSLIB   DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         
+//         DD DSN=CEE.SCEELKED,DISP=SHR                                 
+//SYSLMOD  DD DSN=IBMUSER.COBCIC.LOAD(PGM00001),DISP=SHR                
+//SYSUT1   DD UNIT=SYSDA,DCB=BLKSIZE=1024,                              
+//            SPACE=(1024,(200,20))                                     
+//SYSPRINT DD SYSOUT=*                                                  
+//SYSLIN   DD DSN=&&COPYLINK,DISP=(OLD,DELETE)                          
+//         DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           
+//         DD DDNAME=SYSIN                                              
