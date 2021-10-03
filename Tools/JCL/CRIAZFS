@@ -1,0 +1,14 @@
+//DEFUCAT JOB 1,NOTIFY=&SYSUID                                  
+//ZFSALLOC EXEC PGM=IDCAMS,REGION=0M                            
+//SYSPRINT DD SYSOUT=*                                          
+//SYSIN    DD *                                                 
+    DEFINE CLUSTER( -                                           
+             NAME(IBMUSER.ZFS.MICOD) -                          
+             LINEAR -                                           
+             CYL(500 500) -                                     
+             SHAREOPTIONS(3) -                                  
+                  )                                             
+/*                                                              
+//ZFSFORMT EXEC PGM=IOEAGFMT,REGION=0M,                         
+//            PARM='-aggregate IBMUSER.ZFS.MICOD -compat'       
+//SYSPRINT DD SYSOUT=*                                          
