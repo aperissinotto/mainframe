@@ -1,0 +1,39 @@
+//COMPMAP  JOB 1,NOTIFY=&SYSUID                                  
+//COPY     EXEC PGM=IEBGENER                                     
+//SYSPRINT DD SYSOUT=*                                           
+//SYSUT2   DD DSN=&&TEMPM,UNIT=SYSDA,DISP=(,PASS),               
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),               
+//            SPACE=(400,(50,50))                                
+//SYSIN    DD DUMMY                                              
+//SYSUT1   DD DISP=SHR,DSN=IBMUSER.ASMCIC.MAPLIB(CIMMICS)        
+//*                                                              
+//ASMMAP   EXEC PGM=ASMA90,REGION=0M,                            
+//  PARM='SYSPARM(MAP),DECK,NOOBJECT'                            
+//SYSPRINT DD SYSOUT=*                                           
+//SYSLIB   DD DSN=DFH540.CICS.SDFHMAC,DISP=SHR                   
+//         DD DSN=SYS1.MACLIB,DISP=SHR                           
+//SYSUT1   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                       
+//SYSUT2   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                       
+//SYSUT3   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                       
+//SYSPUNCH DD DSN=&&MAP,DISP=(,PASS),UNIT=SYSDA,                 
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),           
+//            SPACE=(400,(50,50))                            
+//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,PASS)                    
+//*                                                          
+//LINKMAP  EXEC PGM=IEWL,PARM=('LIST,LET,XREF,RMODE(ANY)',   
+//            'AMODE(31)')                                   
+//SYSPRINT DD SYSOUT=*                                       
+//SYSLMOD  DD DISP=SHR,DSN=IBMUSER.ASMCIC.LOAD(CIMMICS)      
+//SYSUT1   DD UNIT=SYSDA,SPACE=(1024,(20,20))                
+//SYSLIN   DD DSN=&&MAP,DISP=(OLD,DELETE)                    
+//*                                                          
+//ASMDSECT EXEC PGM=ASMA90,REGION=0M,                        
+//  PARM='SYSPARM(DSECT),DECK,NOOBJECT'                      
+//SYSPRINT DD SYSOUT=*                                       
+//SYSLIB   DD DSN=DFH540.CICS.SDFHMAC,DISP=SHR               
+//         DD DSN=SYS1.MACLIB,DISP=SHR                       
+//SYSUT1   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                   
+//SYSUT2   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                   
+//SYSUT3   DD UNIT=SYSDA,SPACE=(CYL,(5,5))                   
+//SYSPUNCH DD DISP=OLD,DSN=IBMUSER.ASMCIC.COPYBOOK(CIMMICS)
+//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,DELETE)                
