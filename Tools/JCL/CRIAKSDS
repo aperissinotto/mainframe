@@ -1,0 +1,16 @@
+//DEFUCAT JOB 1,NOTIFY=&SYSUID                                
+//ZFSALLOC EXEC PGM=IDCAMS,REGION=0M                          
+//SYSPRINT DD SYSOUT=*                                        
+//SYSIN    DD *                                               
+ DEFINE CLUSTER (NAME(SYSC.CICS.ICEAS.VSAM)         -         
+          CYL(10 10)                                -         
+          KEYS(4 0)                                 -         
+          RECORDSIZE(500,500)                       -         
+          SHAREOPTIONS(2 3)                         -         
+          INDEXED                                   -         
+          )                                         -         
+          DATA (NAME(SYSC.CICS.ICEAS.VSAM.DATA)     -         
+          )                                         -         
+          INDEX (NAME(SYSC.CICS.ICEAS.VSAM.INDEX)   -         
+          )                                                   
+/*                                                            
