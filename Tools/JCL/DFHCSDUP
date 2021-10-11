@@ -1,0 +1,13 @@
+//IBMUSERP JOB 1,NOTIFY=&SYSUID                               
+//STEP1   EXEC PGM=DFHCSDUP,REGION=0M,                        
+//        PARM='CSD(READWRITE),PAGESIZE(60),NOCOMPAT'         
+//STEPLIB  DD  DSN=DFH540.CICS.SDFHLOAD,DISP=SHR              
+//DFHCSD   DD  DISP=SHR,DSN=DFH540.CICS.DFHCSD                
+//*SECNDCSD DD  UNIT=SYSDA,DISP=SHR,DSN=CICSTS53.CICS.SECNDCSD
+//*INDD     DD  UNIT=SYSDA,DISP=SHR,DSN=EXTRACT.INPUT.DATASET 
+//*OUTDD    DD  UNIT=SYSDA,DISP=SHR,DSN=EXTRACT.OUTPUT.DATASET
+//* OR XYZLIST                                                
+//OUTDD    DD  SYSOUT=A                                       
+//SYSPRINT DD  SYSOUT=A                                       
+//SYSIN    DD  DISP=SHR,DSN=TCPIP.SEZAINST(EZACICCT)          
+//                                                            
