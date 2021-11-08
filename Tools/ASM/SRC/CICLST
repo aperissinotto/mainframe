@@ -1,0 +1,220 @@
+*******************************************************************   @
+*                                                                 *   @
+* NOME DO MODULO..........: CICLST                                *   @
+* TITULO..................: TASK MAE LISTENER.                    *   @
+*                                                                 *   @
+* AREA RESPONSAVEL........: SODC                                  *   @
+*                                                                 *   @
+* TIPO DE MODULO..........: PROGRAMA ASSEMBLER CICS               *   @
+*                                                                 *   @
+* DESCRICAO RESUMIDA......: FICA EM LISTENER.                     *   @
+*                                                                 *   @
+* FUNCIONALIDADES.........:                                       *   @
+* - FICAR EM LISTENER.                                            *   @
+*                                                                 *   @
+* ARQUIVOS ACESSADOS......:                                       *   @
+*                                                                 *   @
+* MODULOS CHAMADORES......:                                       *   @
+* - NENHUM                                                        *   @
+*                                                                 *   @
+* MODULOS CHAMADOS........:                                       *   @
+* - NENHUM                                                        *   @
+*                                                                 *   @
+* MACROS                                                          *   @
+* - NENHUMA                                                       *   @
+*                                                                 *   @
+* DSECTS DE MAPEAMENTO:                                           *   @
+* - DFHEISTG - COPY BOOK QUE DEFINE A AREA DE WORKING             *   @
+*                                                                 *   @
+* DESCRICAO DE USO DOS REGISTRADORES:                             *   @
+*  - R11: BASE DO EIB CONTROL BLOCK                               *   @
+*  - R12/R10: BASE DO PROGRAMA                                    *   @
+*  - R13: BASE DA WORKING                                         *   @
+*                                                                 *   @
+* PARAMETROS DE ENTRADA:                                          *   @
+*  - NAO HA.                                                      *   @
+*                                                                 *   @
+* PARAMETROS DE SAIDA:                                            *   @
+*  - NAO HA.                                                      *   @
+*                                                                 *   @
+*******************************************************************   @
+*                    CONTROLE DE ALTERACOES                       *   @
+*-----------------------------------------------------------------*   @
+*  DATA    * VER * AUTOR    * DESCRICAO                           *   @
+*-----------------------------------------------------------------*   @
+* XX/11/21 * XXX * ALEXANDRE* VERSAO INICIAL                      *   @
+*          * 001 *          *                                     *   @
+*-----------------------------------------------------------------*   @
+         IEABRCX DEFINE                                           *   @
+CICLST   RSECT
+CICLST   DFHEIENT CODEREG=(R12),                                       X
+               DATAREG=(R13),                                          X
+               EIBREG=(R11),                                           X
+               STATIC=CISTAT
+CICLST   AMODE 31
+CICLST   RMODE ANY
+*-----------------------------------------------------------------*   @
+*        OBTEM UM SOCKET                                          *   @
+*-----------------------------------------------------------------*   @
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         CALL  BPX1SOC,                                                X
+               (=A(AF_INET),                                           X
+               =A(SOCK#_STREAM),                                       X
+               =A(IPPROTO_IP),                                         X
+               =A(SOCK#DIM_SOCKET),                                    X
+               SOCKETS,                                                X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         MVC   OPTDATL,=A(L'SOCK#SO_REUSEADDR)
+         MVC   OPTDATA,=A(SOCK#SO_REUSEADDR_EQU)
+         CALL  BPX1OPT,                                                X
+               (SOCKDESC,                                              X
+               =A(SOCK#OPTOPTSETSOCKOPT),                              X
+               =A(SOCK#SOL_SOCKET_EQU),                                X
+               =A(SOCK#SO_REUSEADDR_EQU),                              X
+               OPTDATL,                                                X
+               OPTDATA,                                                X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         MVC   OPTDATL,=A(L'SOCK#SO_KEEPALIVE)
+         MVC   OPTDATA,=A(SOCK#SO_KEEPALIVE_EQU)
+         CALL  BPX1OPT,                                                X
+               (SOCKDESC,                                              X
+               =A(SOCK#OPTOPTSETSOCKOPT),                              X
+               =A(SOCK#SOL_SOCKET_EQU),                                X
+               =A(SOCK#SO_KEEPALIVE_EQU),                              X
+               OPTDATL,                                                X
+               OPTDATA,                                                X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         MVHHI SOCK_SIN_PORT,3005
+         MVI   SOCK_FAMILY,AF_INET
+         MVI   SOCK_SIN_ADDR,192
+         MVI   SOCK_SIN_ADDR+1,168
+         MVI   SOCK_SIN_ADDR+2,25
+         MVI   SOCK_SIN_ADDR+3,210
+         CALL  BPX1BND,                                                X
+               (SOCKDESC,                                              X
+               =A(SOCK#LEN+SOCK_SIN#LEN),                              X
+               SOCKADDR,                                               X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         CALL  BPX1LSN,                                                X
+               (SOCKDESC,                                              X
+               =A(2000),                                               X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         EXEC  CICS ENTER TRACENUM(=H'0')                              X
+               RESOURCE(=C'TESTE')
+*---------------------------------------------------------------------*
+         XC    RETVAL,RETVAL
+         XC    RETCODE,RETCODE
+         XC    RSNCODE,RSNCODE
+         MVC   SELLIST,=XL8'FFFFFFFFFFFFFFFF'
+         CALL  BPX1SEL,                                                X
+               (=A(1),                                                 X
+               =A(SELLISTL),                                           X
+               SELLIST,                                                X
+               =A(0),                                                  X
+               =A(0),                                                  X
+               =A(0),                                                  X
+               =A(0),                                                  X
+               =A(0),                                                  X
+               =A(0),                                                  X
+               =A(SEL#BITSFORWARD),                                    X
+               RETVAL,RETCODE,RSNCODE),                                X
+               VL,MF=(E,PLIST)
+*---------------------------------------------------------------------*
+         EXEC  CICS WRITEQ TS QUEUE(=CL8'TESTE') FROM(SOCKDESC)        X
+               LENGTH(=H'4')
+         EXEC  CICS WRITEQ TS QUEUE(=CL8'TESTE') FROM(RETVAL)          X
+               LENGTH(=H'4')
+         EXEC  CICS WRITEQ TS QUEUE(=CL8'TESTE') FROM(RETCODE)         X
+               LENGTH(=H'4')
+         EXEC  CICS WRITEQ TS QUEUE(=CL8'TESTE') FROM(RSNCODE)         X
+               LENGTH(=H'4')
+*-----------------------------------------------------------------*   @
+*        FIM DO PROGRAMA                                          *   @
+*-----------------------------------------------------------------*   @
+CPFIM    DS   0H                                                  *   @
+         EXEC  CICS SEND CONTROL                                       X
+               ERASE
+*                                                                 *   @
+         EXEC CICS SEND TEXT FROM(LFILEN)
+         XR    R15,R15              * SETA RC=0                   *   @
+         DFHEIRET RCREG=R15         * RETORNA P/ CICS             *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE LITERAIS                                         *   @
+*-----------------------------------------------------------------*   @
+CISTAT   DS   0D                                                  *   @
+         LTORG                                                    *   @
+LFILEN   DC    C'SUPICES '                                        *   @
+*                                                                 *   @
+         COPY  DFHAID                                             *   @
+         COPY  DFHBMSCA                                           *   @
+*-----------------------------------------------------------------*   @
+*        DSECT'S                                                  *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE WORKING                                          *   @
+*-----------------------------------------------------------------*   @
+DFHEISTG DSECT                                                    *   @
+         ORG   DFHEIUSR                                           *   @
+*                                                                 *   @
+         BPXYSOCK DSECT=NO
+         BPXYSEL  DSECT=NO
+*                                                                 *   @
+OPTDATA  DS    F
+OPTDATL  DS    F
+RETVAL   DS    F
+RETCODE  DS    F
+RSNCODE  DS    F
+*                                                                 *   @
+SOCKETS  DS   0XL8
+SOCKDESC DS    F
+SOCKDES2 DS    F
+*                                                                 *   @
+SELLIST  DS    FD
+SELLISTL EQU   *-SELLIST
+*                                                                 *   @
+PLIST    DS  13A
+*                                                                 *   @
+WLENWRK  EQU   *-DFHEISTG           * TAMANHO TOTAL DA AREA       *   @
+*-----------------------------------------------------------------*   @
+*        EQUATES DE REGISTRADORES                                 *   @
+*-----------------------------------------------------------------*   @
+R0       EQU   0                                                  *   @
+R1       EQU   1                                                  *   @
+R2       EQU   2                                                  *   @
+R3       EQU   3                                                  *   @
+R4       EQU   4                                                  *   @
+R5       EQU   5                                                  *   @
+R6       EQU   6                                                  *   @
+R7       EQU   7                                                  *   @
+R8       EQU   8                                                  *   @
+R9       EQU   9                                                  *   @
+R10      EQU   10                                                 *   @
+R11      EQU   11                                                 *   @
+R12      EQU   12                                                 *   @
+R13      EQU   13                                                 *   @
+R14      EQU   14                                                 *   @
+R15      EQU   15                                                 *   @
+         END   CICLST                                             *   @
