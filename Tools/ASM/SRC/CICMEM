@@ -1,0 +1,170 @@
+         IEABRCX DEFINE                                           *   @ 
+CICMEM   DFHEIENT CODEREG=(R12),                                       X
+               DATAREG=(R13),                                          X
+               EIBREG=(R11),                                           X
+               STATIC=CISTAT                                            
+CICMEM   AMODE 31                                                       
+CICMEM   RMODE ANY                                                      
+*---------------------------------------------------------------------* 
+         XR    R3,R3                * APONTA PSA                        
+         L     R3,548(0,R3)         * APONTA ASCB (HOME)                
+         L     R3,124(0,R3)         * APONTA TCB RCT                    
+         L     R2,132(0,R3)         * APONTA MAE                        
+         JAS   R9,CICGTS            * SALVA NA TS                       
+*                                                                 *   @ 
+LOOPFIL  DS   0H                                                        
+         LT    R4,136(0,R3)         * TEM FILHA?                        
+         JZ    LOOPIRM              * NAO, VE SE TEM IRMAS              
+         LR    R3,R4                * APONTA                            
+         L     R2,132(0,R3)         * APONTA MAE                        
+         JAS   R9,CICGTS            * SALVA NA TS                       
+         J     LOOPFIL              * VE PROX. FILHA                    
+*                                                                 *   @ 
+LOOPIRM  DS   0H                                                        
+         LT    R4,128(0,R3)         * TEM IRMA?                         
+         JZ    LOOPVMA              * NAO, VE SE TEM MAE                
+         LR    R3,R4                * APONTA                            
+         L     R2,132(0,R3)         * APONTA MAE                        
+         JAS   R9,CICGTS            * SALVA NA TS                       
+         J     LOOPIRM              * VOLTA P/ IRMA                     
+*                                                                 *   @ 
+LOOPVMA  DS   0H                                                        
+         LT    R4,132(0,R3)         * TEM MAE?                          
+         JZ    CPFIM                * NAO, ACABOU                       
+         LR    R3,R4                * APONTA                            
+*                                                                 *   @ 
+         LT    R4,128(0,R3)         * TEM IRMA?                         
+         JZ    LOOPVMA              * NAO, VE SE TEM MAE                
+         LR    R3,R4                * APONTA                            
+         L     R2,132(0,R3)         * APONTA MAE                        
+         JAS   R9,CICGTS            * SALVA NA TS                       
+         J     LOOPFIL                                                  
+*                                                                 *   @ 
+CICGTS   DS   0H                                                        
+         ST    R2,WTTCBM                                                
+*                                                                 *   @ 
+         ST    R2,WXREG                                                 
+         UNPK  WXUNPK(9),WXREG(5)                                       
+         NC    WXUNPK,XTR1                                              
+         TR    WXUNPK,XTR2                                              
+         MVC   WTTCBMF(8),WXUNPK                                        
+*                                                                 *   @ 
+         ST    R3,WTTCBF                                                
+*                                                                 *   @ 
+         ST    R3,WXREG                                                 
+         UNPK  WXUNPK(9),WXREG(5)                                       
+         NC    WXUNPK,XTR1                                              
+         TR    WXUNPK,XTR2                                              
+         MVC   WTTCBFF(8),WXUNPK                                        
+*                                                                 *   @ 
+         L     R4,0(0,R3)           * APONTA RB                         
+         L     R4,12(0,R4)          * APONTA CDE                        
+         MVC   WTPGMP,8(R4)                                             
+         MVC   WTUTRN,=C'****'                                          
+         L     R4,208(0,R3)         * CARREGA END. DA TCB EXT.          
+*                                                                 *   @ 
+         LT    R4,20(0,R4)          * CARREGA END. DA AFCB              
+         JZ    CICGTSJ1             * NAO, TEM AFCB                     
+         ST    R4,WTAFCB                                                
+         ST    R4,WXREG                                                 
+         UNPK  WXUNPK(9),WXREG(5)                                       
+         NC    WXUNPK,XTR1                                              
+         TR    WXUNPK,XTR2                                              
+         MVC   WTAFCBF(8),WXUNPK                                       
+*                                                                 *   @
+         LT    R5,16(0,R4)          * CARREGA END. DA AFCS             
+         JZ    CICGTSJ1             * NAO, TEM AFCS                    
+         ST    R5,WTAFCS                                               
+         ST    R5,WXREG                                                
+         UNPK  WXUNPK(9),WXREG(5)                                      
+         NC    WXUNPK,XTR1                                             
+         TR    WXUNPK,XTR2                                             
+         MVC   WTAFCSF(8),WXUNPK                                       
+*                                                                 *   @
+         LT    R5,20(0,R4)          * CARREGA END. DA AFCS             
+         JZ    CICGTSJ1             * NAO, TEM AFCS                    
+         ST    R5,WTKTCB                                               
+         ST    R5,WXREG                                                
+         UNPK  WXUNPK(9),WXREG(5)                                      
+         NC    WXUNPK,XTR1                                             
+         TR    WXUNPK,XTR2                                             
+         MVC   WTKTCBF(8),WXUNPK                                        
+*                                                                 *   @ 
+CICGTSJ1 DS   0H                                                        
+         MVHHI WTSLNGT,WTSLINEL                                         
+         EXEC  CICS WRITEQ TS QUEUE(=CL8'TESTE')                       X
+               FROM(WTSLINE)                                           X
+               LENGTH(WTSLNGT)                                         X
+               NOHANDLE                                                 
+*                                                                 *   @ 
+         BR    R9                                                       
+*-----------------------------------------------------------------*   @ 
+*        FIM DO PROGRAMA                                          *   @ 
+*-----------------------------------------------------------------*   @ 
+CPFIM    DS   0H                                                        
+         EXEC  CICS SEND CONTROL                                       X
+               ERASE                                                    
+*                                                                 *   @ 
+         EXEC CICS SEND TEXT FROM(LFILEN)                               
+         XR    R15,R15              * SETA RC=0                   *   @
+         DFHEIRET RCREG=R15         * RETORNA P/ CICS             *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE LITERAIS                                         *   @
+*-----------------------------------------------------------------*   @
+CISTAT   DS   0D                                                  *   @
+         LTORG                                                    *   @
+LFILEN   DC    C'CEBR TESTE'                                      *   @
+XTR1     DC    X'0F0F0F0F0F0F0F0F'                                *   @
+XTR2     DC    C'0123456789ABCDEF'                                *   @
+*-----------------------------------------------------------------*   @
+*        DSECT'S                                                  *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE WORKING                                          *   @
+*-----------------------------------------------------------------*   @
+DFHEISTG DSECT                                                    *   @
+         ORG   DFHEIUSR                                           *   @
+*                                                                 *   @
+WTSLNGT  DS    H                                                       
+WTSLINE  DS   0F                                                       
+WTTCBM   DS    F                                                       
+WTTCBMF  DS    CL8                                                     
+WTTCBF   DS    F                                                       
+WTTCBFF  DS    CL8                                                     
+WTPGMP   DS    CL8                                                     
+WTUTRN   DS    CL4                                                     
+WTAFCB   DS    F                                                       
+WTAFCBF  DS    CL8                                                     
+WTAFCS   DS    F                                                       
+WTAFCSF  DS    CL8                                                     
+WTKTCB   DS    F                                                       
+WTKTCBF  DS    CL8                                                     
+WTSLINEL EQU   *-WTSLINE                                               
+*                                                                 *   @
+WPOINT   DS    F                                                       
+*                                                                 *   @
+WXREG    DS    F                                                       
+         DS    X                                                       
+WXUNPK   DS    FD                                                      
+         DS    X                                                       
+*                                                                 *   @
+WLENWRK  EQU   *-DFHEISTG           * TAMANHO TOTAL DA AREA       *   @
+*-----------------------------------------------------------------*   @
+*        EQUATES DE REGISTRADORES                                 *   @
+*-----------------------------------------------------------------*   @
+R0       EQU   0                                                  *   @
+R1       EQU   1                                                  *   @
+R2       EQU   2                                                  *   @
+R3       EQU   3                                                  *   @
+R4       EQU   4                                                  *   @
+R5       EQU   5                                                  *   @
+R6       EQU   6                                                  *   @
+R7       EQU   7                                                  *   @
+R8       EQU   8                                                  *   @
+R9       EQU   9                                                  *   @
+R10      EQU   10                                                 *   @
+R11      EQU   11                                                 *   @
+R12      EQU   12                                                 *   @
+R13      EQU   13                                                 *   @
+R14      EQU   14                                                 *   @
+R15      EQU   15                                                 *   @
+         END   CICMEM                                             *   @
