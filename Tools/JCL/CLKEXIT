@@ -1,0 +1,18 @@
+//CLKEXIT  JOB 1,NOTIFY=&SYSUID                                         00010020
+//MYLIBS1  JCLLIB  ORDER=DFH540.CICS.SDFHPROC                           00020020
+//*******************************************************************   00410003
+//** STEP DE TRADUCAO CICS                                              00420003
+//*******************************************************************   00430003
+//ASSEMBLE EXEC DFHEITAL,                                               00690020
+//      ASMBLR=ASMA90,                                                  00700020
+//      INDEX='DFH540.CICS',                                            00710020
+//      PROGLIB='IBMUSER.ASMCIC.LOAD',                                  00720020
+//      DSCTLIB='IBMUSER.ASMCIC.COPYBOOK',                              00730020
+//      PARM.TRN='NOPROLOG,NOEPILOG',                                   00740020
+//      PARM.ASM='DECK,NOOBJECT,LIST,XREF(SHORT),RENT,ALIGN',           00750020
+//      LNKPARM='LIST,XREF,RENT,MAP,AMODE(31),RMODE(ANY)'               00760020
+//TRN.SYSIN DD DSN=IBMUSER.ASMCIC.FONTES(TRUEXIT),DISP=SHR              00770020
+//LKED.SYSIN DD *                                                       00780020
+ ENTRY TRUEXIT                                                          00790020
+ NAME TRUEXIT(R)                                                        00800020
+//*                                                                     00810020
