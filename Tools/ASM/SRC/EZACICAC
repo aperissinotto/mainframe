@@ -1,0 +1,517 @@
+*
+* Beginning of program
+*
+         IEABRCX DEFINE                                           *   @
+EZACICAC DFHEIENT CODEREG=(R12),                                       X
+               DATAREG=(R13),                                          X
+               EIBREG=(R11),                                           X
+               STATIC=CISTAT
+EZACICAC AMODE 31
+EZACICAC RMODE ANY
+         MVC   TDTEXT(40),STARTED_MSG Move STARTED message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+         MVC   TCPLENG,=F'200'
+         MVC   CLENG,=H'72'       Length for standard listener
+         MVC   CLENG,=H'1153'     Length for enhanced listener
+*
+* Retrieve the Task Input Message(TIM) from the Listener
+*
+         EXEC CICS RETRIEVE INTO(SOKTIM) LENGTH(CLENG)
+*
+* Issue the 'TAKESOCKET' call to acquire the socket which was
+* given by the listener program.
+*
+         XC    CLIENTID,CLIENTID  Clear the clientid structure
+         MVC   GIVE_DOM+2,SOKFAM  Based on the AF in the TIM
+         MVC   AS_NAME,SOKLASID   Set the address space name
+         MVC   TASK_ID,SOKLTID      and the subtask identifier
+         MVC   SOCDESC,SOKDESC+2      and the socket descriptor.
+*
+         CALL  EZASOKET,(SOCTSOCK,SOCDESC,CLIENTID,                    X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   SOCDESC,RETCODE+2  Yes, format the return code and
+         MVC   TDCMD,SOCTSOCK        the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+         XC    TCP_BUF,TCP_BUF    Clear the buffer storage
+         MVC   TCP_BUF(L'TASK_START),TASK_START Set the message
+         L     R8,=F'50'          Set the
+         ST    R8,TCPLENG           message length.
+*
+* Remove the following call to EZACIC04 if using an EBCDIC client.
+*
+         CALL  EZACIC04,(TCP_BUF,TCPLENG),VL,MF=(E,PARMLIST)
+*
+* Notify client the the child subtask has started.
+*
+         CALL  EZASOKET,(SOCWRITE,SOCDESC,TCPLENG,TCP_BUF,             X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCWRITE        the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Get our peers' socket address
+*
+         CALL  EZASOKET,(SOCGPNA,SOCDESC,PEERADDR,                     X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCGPNA         the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Get our client's host name and service name
+*
+         L     R8,=F'16'          Set the sockaddr length to IPv4
+         CLC   SOKFAM,=AL2(AF_INET) Is the client AF_INET ?
+         BE    SET_SOCKADDR_LEN   Yes.  Go store the length.
+         L     R8,=F'28'          Set the sockaddr length to IPv6
+SET_SOCKADDR_LEN DS 0H
+         ST    R8,PEERADDR_LEN    Save the value of the sockaddr length
+         L     R8,=F'0'           Clear the
+         ST    R8,GNI_FLAGS          flags
+         XC    PEER_HOSTNAME,PEER_HOSTNAME Clear the host name storage
+         L     R8,=F'255'         Set the length of
+         ST    R8,PEER_HOSTNAMELEN   the host name storage
+         XC    PEER_SERVICENAME,PEER_SERVICENAME Clear the service     X
+                                                      name storage
+         L     R8,=F'32'          Set the length of
+         ST    R8,PEER_SERVICENAMELEN the service name storage
+*
+         CALL  EZASOKET,(SOCGNI,PEERADDR,PEERADDR_LEN,                 X
+               PEER_HOSTNAME,PEER_HOSTNAMELEN,                         X
+               PEER_SERVICENAME,PEER_SERVICENAMELEN,                   X
+               GNI_FLAGS,                                              X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCGNI          the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Display the host name
+*
+         MVC   TDHOSTLIT,=C'HOSTNAME='
+         MVC   TDHOST(L'TDHOST),PEER_HOSTNAME
+         MVC   TDTEXT(40),TDHOSTMSG Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Display the service name
+*
+         MVC   TDHOSTLIT,=C'SERVICE='
+         MVC   TDSERV(L'TDSERV),PEER_SERVICENAME
+         MVC   TDTEXT(40),TDSERVMSG Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Receive data from the client
+*
+AGAIN1   DS    0H
+*
+         XC    TCP_BUF,TCP_BUF    Clear the buffer storage
+*
+         CALL  EZASOKET,(SOCRECV,SOCDESC,RECV_FLAG,TCPLENG,TCP_BUF,    X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCRECV         the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Remove the following call to EZACIC05 if using an EBCDIC client.
+*
+         CALL  EZACIC05,(TCP_BUF,TCPLENG),VL,MF=(E,PARMLIST)
+*
+* Determine whether the client is finished sending data
+*
+         CLC   TCP_BUF_H,=C'END'
+         BE    SIGNAL_CLOSING
+         CLC   TCP_BUF_H,=C'end'
+         BE    SIGNAL_CLOSING
+*
+* Remove the following call to EZACIC04 if using an EBCDIC client.
+*
+         CALL  EZACIC04,(TCP_BUF,TCPLENG),VL,MF=(E,PARMLIST)
+*
+* Echo the data received back to the client
+*
+         CALL  EZASOKET,(SOCWRITE,SOCDESC,TCPLENG,TCP_BUF,             X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCWRITE        the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Go receive another message
+*
+         B     AGAIN1
+*
+* Tell client the connection will close.
+*
+SIGNAL_CLOSING DS 0H
+         XC    TCP_BUF,TCP_BUF    Clear the buffer storage
+         MVC   TCP_BUF(L'WRKEND),WRKEND Set the message
+         L     R8,=F'50'          Set the
+         ST    R8,TCPLENG           message length.
+*
+* Remove the following call to EZACIC04 if using an EBCDIC client.
+*
+         CALL  EZACIC04,(TCP_BUF,TCPLENG),VL,MF=(E,PARMLIST)
+*
+* Notify the client that the connection will end.
+*
+         CALL  EZASOKET,(SOCWRITE,SOCDESC,TCPLENG,TCP_BUF,             X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCWRITE        the API function performed.
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+*
+* Close the socket
+*
+         CALL  EZASOKET,(SOCCLOSE,SOCDESC,                             X
+               ERRNO,RETCODE),VL,MF=(E,PARMLIST)
+*
+         L     R5,ERRNO           Capture the ERRNO and
+         L     R6,RETCODE            the return code.
+         C     R6,=F'0'           Is the call successful?
+         BL    SOCERR             No!  Go display error and terminate
+         MVC   TDCMD,SOCCLOSE    Yes, format the API function performed
+         MVC   TDRESULT(24),SUCC  Move SUCCESSFUL msg to TD area
+         MVC   TDTEXT(40),TDTEXT0 Move message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+         B     SOCRET             Go return to CICS
+*
+* Error routine for all socket calls
+*
+SOCERR   DS    0H
+         MVI   FORCEMSG,C'Y'      Indicate message should be forced
+         MVC   TDTEXT(40),=C'SOCKET ERROR                             '
+         BAL   R7,WRITEQ          Write to TD Queue
+         L     R6,RETCODE         Pick up the return code value
+         L     R5,ERRNO           Pick up the ERRNO value
+*
+         CVD   R6,DWORK           Format the return code
+         UNPK  TDRETC,DWORK+4(4)    for printing to the
+         OI    TDRETC+6,X'F0'          TD queue
+*
+         CVD   R5,DWORK           Format the ERRNO
+         UNPK  TDERRNO,DWORK+4(4)   for printing to the
+         OI    TDERRNO+6,X'F0'         TD queue
+*
+         MVC   TDTEXT(40),TDTEXT5 Move the return code and ERRNO to
+         BAL   R7,WRITEQ          the TD queue.  Write to the TD queue
+*
+         B     SOCRET             Go return to CICS
+*
+* Subroutine to write messages to the destination "CSMT" for logging
+*
+WRITEQ   DS    0H
+         CLI   SOKTSI,C'1'        Is interface using OTE ?
+         BNE   WRITEQ01           No, write message.
+         CLI   FORCEMSG,C'Y'      Is this an error message ?
+         BNE   WRITEQ02           Yes, bypass writing message.
+WRITEQ01 DS    0H
+         EXEC CICS ASKTIME ABSTIME(UTIME)
+         EXEC CICS FORMATTIME ABSTIME(UTIME)                           X
+              DATESEP('/') DDMMYY(TDDATE)                              X
+              TIME(TDTIME) TIMESEP
+         LA    R6,TDMSGL
+         STH   R6,TDLEN
+         EXEC CICS WRITEQ TD QUEUE('CSMT')                             X
+               FROM(TDMSG)                                             X
+               LENGTH(TDLEN)
+WRITEQ02 DS    0H
+         XC    TDMSG,TDMSG
+         BR    R7                 Return to caller
+*
+* All done.  Return to CICS...
+*
+SOCRET   DS    0H
+         MVC   TDTEXT(40),STOPPED_MSG Move STOPPED message to TD area
+         BAL   R7,WRITEQ          Write to TD Queue
+         EXEC CICS RETURN
+*-----------------------------------------------------------------*   @
+*        AREA DE LITERAIS                                         *   @
+*-----------------------------------------------------------------*   @
+CISTAT   DS   0D                                                  *   @
+         LTORG                                                    *   @
+*
+* Socket family values
+*
+AFINET   DC    F'2'               AF_INET
+AFINET6  DC    F'19'              AF_INET6
+AF_INET  EQU   2
+AF_INET6 EQU   19
+*
+* Socket protocol values
+*
+SSTREAM  DC    F'1'               socket type stream
+SDATAGRM DC    F'2'               socket type datagram
+SRAW     DC    F'3'               socket type raw
+*
+* IP CICS Socket API functions
+*
+SOCACCT  DC    CL16'ACCEPT          '
+SOCBIND  DC    CL16'BIND            '
+SOCCLOSE DC    CL16'CLOSE           '
+SOCCONNT DC    CL16'CONNECT         '
+SOCFCNTL DC    CL16'FCNTL           '
+SOCGCLID DC    CL16'GETCLIENTID     '
+SOCGTHBA DC    CL16'GETHOSTBYADDR   '
+SOCGTHBN DC    CL16'GETHOSTBYNAME   '
+SOCGTHID DC    CL16'GETHOSTID       '
+SOCGTHN  DC    CL16'GETHOSTNAME     '
+SOCGPNA  DC    CL16'GETPEERNAME     '
+SOCGNI   DC    CL16'GETNAMEINFO     '
+SOCFAI   DC    CL16'FREEADDRINFO    '
+SOCGAI   DC    CL16'GETADDRINFO     '
+SOCGTSN  DC    CL16'GETSOCKNAME     '
+SOCGSOPT DC    CL16'GETSOCKOPT      '
+SOCGSOCK DC    CL16'GIVESOCKET      '
+SOCINIT  DC    CL16'INITAPI         '
+SOCIOCTL DC    CL16'IOCTL           '
+SOCLISTN DC    CL16'LISTEN          '
+SOCNTOP  DC    CL16'NTOP            '
+SOCPTON  DC    CL16'PTON            '
+SOCREAD  DC    CL16'READ            '
+SOCREADV DC    CL16'READV           '
+SOCRECV  DC    CL16'RECV            '
+SOCRECVF DC    CL16'RECVFROM        '
+SOCRECVM DC    CL16'RECVMSG         '
+SOCSELCT DC    CL16'SELECT          '
+SOCSELX  DC    CL16'SELECTEX        '
+SOCSEND  DC    CL16'SEND            '
+SOCSENDM DC    CL16'SENDMSG         '
+SOCSENDT DC    CL16'SENDTO          '
+SOCSSOPT DC    CL16'SETSOCKOPT      '
+SOCSHUTD DC    CL16'SHUTDOWN        '
+SOCSOKET DC    CL16'SOCKET          '
+SOCTSOCK DC    CL16'TAKESOCKET      '
+SOCTERM  DC    CL16'TERMAPI         '
+SOCWRITE DC    CL16'WRITE           '
+SOCWRITV DC    CL16'WRITEV          '
+ZERO     DC    F'0'
+*
+* Message(s) written to the transient data queue
+*
+STARTED_MSG DC CL40'EZACICAC Started successfully           '
+STOPPED_MSG DC CL40'EZACICAC Stopped successfully           '
+NOCOMMAREA DC  CL40'EZACICAC ***ERROR*** NO COMMAREA PASSED!'
+TASK_START DC  CL40'TASK STARTING THRU CICS/TCPIP INTERFACE '
+WRKEND   DC    CL20'CONNECTION END      '
+*
+* Message buffer for data from/to client
+*
+*
+SUCC     DC    CL24'Successful              '
+NOTSUCC  DC    CL24'Not successful          '
+*-----------------------------------------------------------------*   @
+*        DSECT'S                                                  *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE WORKING                                          *   @
+*-----------------------------------------------------------------*   @
+DFHEISTG DSECT                                                    *   @
+         ORG   DFHEIUSR                                           *   @
+*
+* Peers sockaddr
+*
+PEERADDR DS    0F                 Clients socket address
+PEERFAM  DS    H                  Address family
+PEER_DATA DS   0C                 Protocol specific area
+PEER#LEN EQU   *-PEERADDR
+         ORG   PEER_DATA          Start of AF_INET unique area
+PEER_SIN DS    0C
+PEER_SIN_PORT DS H                Clients port number
+PEER_SIN_ADDR DS F                Clients INET address (netid)
+         DS    CL8                Reserved area not used
+         DS    20F
+PEER_SIN#LEN EQU *-PEER_SIN       Length of AF_INET area
+         ORG   PEER_DATA          Start of AF_INET6 unique area
+PEER_SIN6 DS   0C
+PEER_SIN6_PORT DS H               Clients port number
+PEER_SIN6_FLOWINFO DS CL4         Flow information
+PEER_SIN6_ADDR DS CL16            Clients INET address (netid)
+PEER_SIN6_SCOPE_ID DS CL4         Scope Id
+PEER_SIN6#LEN EQU *-PEER_SIN6     Length of AF_INET6 area
+*
+PEERADDR_LEN DS F
+*
+* Peers HOST/SERVICE NAME/LEN
+*
+PEER_HOSTNAME DS CL255
+PEER_HOSTNAMELEN DS F
+PEER_SERVICENAME DS CL32
+PEER_SERVICENAMELEN DS F
+*
+* Receive Flag
+*
+GNI_FLAGS DS   F                  GETNAMEINFO flags
+*
+* Receive Flag
+*
+RECV_FLAG DS   F                  RECEIVE flags
+*
+*
+*
+*
+*                                                                 *   @
+TDTEXT5  DS    0CL40
+         DC    CL10'Retcode = '
+TDRETC   DC    CL7' '             Printable RETCODE
+         DC    CL3' '
+         DC    CL9'ERRNO = '
+TDERRNO  DC    CL7' '             Printable ERRNO
+         DC    CL4' '
+*
+TCP_BUF  DS    0CL200             Buffer
+TCP_BUF_H DC   CL3' '
+TCP_BUF_DATA DC CL197' '
+TCPLENG  DC    F'200'             Length of buffer
+*                                                                 *   @
+FORCEMSG DS    CL1            Used to force the message when threadsafe
+SOCSTG   DS    0F                 PROGRAM STORAGE
+*
+* Storage to format messages
+*
+TDMSG    DS    0F                 WRITEQ TD Message area
+TDDATE   DS    CL8                MM/DD/YY
+TDFILL1  DS    CL2
+TDTIME   DS    CL8                HH:MM:SS
+TDFILL2  DS    CL2
+TDTEXT   DS    CL40               TDTEXT
+*
+         ORG   TDTEXT
+TDTEXT0  DS    0CL40
+TDCMD    DS    CL16               COMMAND ISSUED
+TDRESULT DS    CL24               SUCCESSFUL/UNSUCCESSFUL
+TDMSGE   EQU   *                  End of message
+TDMSGL   EQU   TDMSGE-TDMSG       Length of TD message text
+*
+* Message to display the clients host name
+*
+         ORG   TDTEXT
+TDHOSTMSG DS    0CL40
+TDHOSTLIT DS   CL9
+TDHOST   DS    CL31
+*
+* Message to display the clients service name
+*
+         ORG   TDTEXT
+TDSERVMSG DS    0CL40
+TDSERVLIT DS   CL8
+TDSERV   DS    CL32
+*
+TDLEN    DS    H                  Length of TD message text
+*
+* Working storage fields
+*
+CLENG    DS    H                  Length of data to RETRIEVE
+UTIME    DS    PL8                ABSTIME data area
+DWORK    DS    D                  Double work work area
+UNPKWRK  DS    CL15               For packing/unpacking
+PARMLIST DS    20F                Parm list for EZASOKET calls
+*
+SOCDESC  DS    H                  Socket Descriptor
+*
+ERRNO    DS    F                  ERRNO
+RETCODE  DS    F                  Return code
+*
+* Storage to map the clientid structure.
+*
+CLIENTID DS 0CL40
+GIVE_DOM DS F                     Domain of socket given/taken
+AS_NAME  DS CL8                   Address space name
+TASK_ID  DS CL8                   Task identifier
+         DS CL20                  Reserved
+*
+* Storage to address the Transaction Input Message from the Listener.
+*
+SOKTIM   DS    0CL1153
+SOKDESC  DS    F                  Socket descriptor given
+SOKLASID DS    CL8                Listener address space name
+SOKLTID  DS    CL8                Listener task identifier
+SOKDATA1 DS    CL35               Client input data
+SOKTSI   DS    CL1                Threadsafe inidicator
+SOKADDR  DS    0F                 Clients socket address
+SOKFAM   DS    H                  Address family
+SOK_DATA DS    0C                 Protocol specific area
+SOK#LEN  EQU   *-SOKADDR
+         ORG   SOK_DATA           Start of AF_INET unique area
+SOK_SIN  DS    0C
+SOK_SIN_PORT DS H                 Clients port number
+SOK_SIN_CIPAD DS F                Clients INET address (netid)
+         DS    CL8                Reserved area not used
+         DS    20F
+SOK_SIN#LEN EQU *-SOK_SIN         Length of AF_INET area
+         ORG   SOK_DATA           Start of AF_INET6 unique area
+SOK_SIN6 DS    0C
+SOK_SIN6_PORT DS H                Clients port number
+SOK_SIN6_FLOWINFO DS CL4          Flow information
+SOK_SIN6_CIPAD DS CL16            Clients INET address (netid)
+SOK_SIN6_SCOPE_ID DS CL4          Scope Id
+SOK_SIN6#LEN EQU *-SOK_SIN6       Length of AF_INET6 area
+         ORG
+         DS    CL68               Reserved
+SOKDATAL DS    H                  Length of data area 2
+SOKDATA2 DS    CL999              Data area 2
+*
+* Program storage marker
+*
+SOCSTGE  EQU   *                  End of Program Storage
+SOCSTGL  EQU   SOCSTGE-SOCSTG     Length of Program Storage
+WLENWRK  EQU   *-DFHEISTG           * TAMANHO TOTAL DA AREA       *   @
+*-----------------------------------------------------------------*   @
+*        EQUATES DE REGISTRADORES                                 *   @
+*-----------------------------------------------------------------*   @
+R0       EQU   0                                                  *   @
+R1       EQU   1                                                  *   @
+R2       EQU   2                                                  *   @
+R3       EQU   3                                                  *   @
+R4       EQU   4                                                  *   @
+R5       EQU   5                                                  *   @
+R6       EQU   6                                                  *   @
+R7       EQU   7                                                  *   @
+R8       EQU   8                                                  *   @
+R9       EQU   9                                                  *   @
+R10      EQU   10                                                 *   @
+R11      EQU   11                                                 *   @
+R12      EQU   12                                                 *   @
+R13      EQU   13                                                 *   @
+R14      EQU   14                                                 *   @
+R15      EQU   15                                                 *   @
+         END EZACICAC
