@@ -1,0 +1,65 @@
+//CLKCASM  JOB 1,NOTIFY=&SYSUID                                         00010010
+//*******************************************************************   00410003
+//** STEP DE TRADUCAO CICS                                              00420003
+//*******************************************************************   00430003
+//TRN    EXEC PGM=DFHEAP1$,                                             00690010
+//            PARM='CICS,SP',                                           00700018
+//            REGION=0M                                                 00710002
+//STEPLIB  DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         00720002
+//SYSPRINT DD SYSOUT=*                                                  00730003
+//SYSPUNCH DD DSN=&&SYSCIN,                                             00740002
+//            DISP=(,PASS),UNIT=SYSDA,                                  00750004
+//            DCB=BLKSIZE=400,                                          00760002
+//            SPACE=(400,(400,100))                                     00770002
+//SYSIN    DD  DSNAME=IBMUSER.ASMCIC.FONTES(EZACICAC),                  00780123
+//             UNIT=SYSALLDA,DISP=SHR,DSNTYPE=LIBRARY                   00780204
+//*******************************************************************   00781003
+//** STEP DE COMPILACAO ASSEMBLER                                       00782011
+//*******************************************************************   00783003
+//ASM      EXEC PGM=ASMA90,REGION=0M,                                   00784011
+//  PARM='DECK,NOOBJECT,LIST'                                           00784111
+//SYSLIB   DD  DSN=SYS1.MACLIB,DISP=SHR                                 00785010
+//         DD  DSN=DFH540.CICS.SDFHMAC,DISP=SHR                         00785110
+//         DD  DSN=DFH540.CICS.SDFHSAMP,DISP=SHR                        00785210
+//         DD  DSN=IBMUSER.ASMCIC.COPYBOOK,DISP=SHR                     00785310
+//SYSUT1   DD  DSN=&&SYSUT1,SPACE=(16384,(120,120),,,ROUND),            00786010
+//             UNIT=SYSALLDA,BUFNO=1                                    00787010
+//SYSUT2   DD  DSN=&&SYSUT2,SPACE=(16384,(120,120),,,ROUND),            00787111
+//             UNIT=SYSALLDA,BUFNO=1                                    00787211
+//SYSUT3   DD  DSN=&&SYSUT3,SPACE=(16384,(120,120),,,ROUND),            00787311
+//             UNIT=SYSALLDA,BUFNO=1                                    00787411
+//SYSPUNCH DD  DSN=&&OBJ,SPACE=(3040,(40,40),,,ROUND),                  00789011
+//             UNIT=SYSALLDA,DISP=(MOD,PASS),                           00789110
+//             BLKSIZE=3040,LRECL=80,RECFM=FB,BUFNO=1                   00789210
+//SYSPRINT DD  SYSOUT=*                                                 00789311
+//SYSIN    DD DSN=&&SYSCIN,DISP=(OLD,DELETE)                            00870002
+//*******************************************************************   01081004
+//** STEP DE STUB CICS                                                  01082004
+//*******************************************************************   01083004
+//COPYLINK EXEC PGM=IEBGENER,REGION=0M                                  01090004
+//SYSUT1   DD DSN=DFH540.CICS.SDFHSAMP(DFHEILID),DISP=SHR               01100004
+//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS),                           01110002
+//            DCB=(LRECL=80,BLKSIZE=400,RECFM=FB),                      01120002
+//            UNIT=SYSDA,SPACE=(400,(20,20))                            01130004
+//SYSPRINT DD SYSOUT=*                                                  01140004
+//SYSIN    DD DUMMY                                                     01150002
+//*******************************************************************   01161004
+//** STEP DE LINKEDICAO                                                 01162004
+//*******************************************************************   01163004
+//LKED   EXEC PGM=IEWL,REGION=0M,                                       01170004
+//            PARM='LIST,XREF,AMODE(31),RMODE(ANY),RENT'                01180023
+//SYSLIB   DD DSN=DFH540.CICS.SDFHLOAD,DISP=SHR                         01190004
+//         DD DISP=SHR,DSN=SYS1.CSSLIB                                  01200017
+//         DD DISP=SHR,DSN=TCPIP.SEZATCP                                01201019
+//         DD DISP=SHR,DSN=IBMUSER.ASMCIC.LOAD                          01202021
+//SYSLMOD  DD DSN=IBMUSER.ASMCIC.LOAD(EZACICAC),DISP=SHR                01210023
+//SYSUT1   DD UNIT=SYSDA,DCB=BLKSIZE=1024,                              01220004
+//            SPACE=(1024,(200,20))                                     01230002
+//SYSPRINT DD SYSOUT=*                                                  01240005
+//SYSLIN   DD DSN=&&COPYLINK,DISP=(OLD,DELETE)                          01250002
+//         DD DSN=&&OBJ,DISP=(OLD,DELETE)                               01260010
+//         DD DDNAME=SYSIN                                              01270002
+//SYSIN    DD *                                                         01280023
+  INCLUDE SYSLIB(EZACICAL)                                              01281023
+  NAME EZACICAC(R)                                                      01290024
+/*                                                                      01300024
