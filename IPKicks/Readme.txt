@@ -1,1 +1,0 @@
-IP Administrator for CICS
