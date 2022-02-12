@@ -1,18 +1,18 @@
-//CLKEXIT  JOB 1,NOTIFY=&SYSUID                                      
-//MYLIBS1  JCLLIB  ORDER=DFH540.CICS.SDFHPROC                        
-//*******************************************************************
-//** STEP DE TRADUCAO CICS                                           
-//*******************************************************************
-//ASSEMBLE EXEC DFHEITAL,                                            
-//      ASMBLR=ASMA90,                                               
-//      INDEX='DFH540.CICS',                                         
-//      PROGLIB='IBMUSER.ASMCIC.LOAD',                               
-//      DSCTLIB='IBMUSER.ASMCIC.COPYBOOK',                           
-//      PARM.TRN='NOPROLOG,NOEPILOG',                                
-//      PARM.ASM='DECK,NOOBJECT,LIST,XREF(SHORT),RENT,ALIGN',        
-//      LNKPARM='LIST,XREF,RENT,MAP,AMODE(31),RMODE(ANY)'            
-//TRN.SYSIN DD DSN=IBMUSER.ASMCIC.FONTES(TRUEXIT),DISP=SHR           
-//LKED.SYSIN DD *                                                    
- ENTRY TRUEXIT                                                       
- NAME TRUEXIT(R)                                                     
-//*                                                                  
+//CLKEXIT  JOB 1,NOTIFY=&SYSUID                                    
+//MYLIBS1  JCLLIB  ORDER=DFH540.CICS.SDFHPROC                      
+//*****************************************************************
+//** STEP DE TRADUCAO CICS                                         
+//*****************************************************************
+//ASSEMBLE EXEC DFHEITAL,                                           
+//      ASMBLR=ASMA90,                                              
+//      INDEX='DFH540.CICS',                                        
+//      PROGLIB='IBMUSER.ASMCIC.LOAD',                              
+//      DSCTLIB='IBMUSER.ASMCIC.COPYBOOK',                          
+//      PARM.TRN='NOPROLOG,NOEPILOG',                               
+//      PARM.ASM='DECK,NOOBJECT,LIST,XREF(SHORT),RENT,ALIGN',      
+//      LNKPARM='LIST,XREF,RENT,MAP,AMODE(31),RMODE(ANY)'          
+//TRN.SYSIN DD DSN=IBMUSER.ASMCIC.FONTES(TRUEXIT),DISP=SHR         
+//LKED.SYSIN DD *                                                   
+ ENTRY TRUEXIT                                                      
+ NAME TRUEXIT(R)                                                    
+//*                                                                
