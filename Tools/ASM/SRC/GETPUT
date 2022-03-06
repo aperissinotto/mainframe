@@ -1,0 +1,112 @@
+//ASM     EXEC PGM=ASMA90                                              
+//SYSPRINT DD  SYSOUT=*                                                
+//SYSLIN   DD  SPACE=(TRK,1),DISP=(,PASS) 
+//SYSLIB   DD  DISP=SHR,DSN=SYS1.MACLIB                                
+//         DD  DISP=SHR,DSN=SYS1.MODGEN                                
+//SYSUT1   DD  SPACE=(CYL,1)                                       
+//SYSIN    DD  *                                                       
+*---------------------------------------------------------------------*
+* GET VARBLK, PUT FIXBLK                                              *
+*---------------------------------------------------------------------*
+GETPUT   AMODE 31                                                      
+GETPUT   RMODE ANY                                                     
+GETPUT   CSECT                                                         
+         SAVE  (14,12)                 STORE SYS REGS                  
+         LR    12,15                   R12 = BASE REG                  
+         USING GETPUT,12                                               
+         BAS   14,INIT                 PERFORM INITIALIZATION          
+         USING DYNSTG,13                                               
+LOOP     LM    15,1,GET@               GET VB INPUT RECORD             
+*        GET   (1)                                                     
+         BASR  14,15                                                   
+         LH    0,0(,1)                 GET INPUT LEN                   
+         STH   0,INLEN                 STORE                           
+         LA    2,4(,1)                 R2 -> INPUT DATA                
+         LM    15,1,PUT@               POSITION OUTPUT BUFFER          
+*        PUT   (1)                                                     
+         BASR  14,15                                                   
+         LR    14,1                    R14 = MVCL TARGET               
+         LH    15,OUTLEN               R15 = MVCL LEN              
+         LR    0,2                     R0 = MVCL SOURCE            
+         LH    1,INLEN                 R1 = INPUT LRECL            
+         AHI   1,-4                    MINUS 4 FOR RDW             
+         ICM   1,8,SPACE               INSERT PAD CHAR             
+         MVCL  14,0                    MOVE INPUT RECORD TO OUTPUT 
+         B     LOOP                    CONTINUE                    
+*                                                                  
+EODAD    CLOSE MODE=31,MF=(E,DMLIST)   CLOSE FILES AND RETURN      
+         L     13,4(,13)               RESTORE SYS SAVEAREA ADDR   
+         RETURN (14,12),RC=(15)        RETURN                      
+*                                                                  
+INIT     LHI   0,DSLEN                 GET WORK AREA               
+*        GETMAIN RC,LV=(0)                                         
+         SR    15,15                                               
+         SR    1,1                                                 
+         SVC   120                                                 
+         ST    1,8(,13)                CHAIN FORWARD               
+         ST    13,4(,1)                CHAIN BACK                  
+         LR    13,1                                                
+         SAVE  14                      STORE RETURN ADDRESS        
+*                                                                 
+* LOAD PUT/LOCATE MODE DCB                                        
+*                                                                 
+         LOAD  EPLOC==CL8'DCBPL'       LOAD DCBPL                 
+         LR    2,0                     R2 -> DCBPL                
+*                                                                 
+* LOAD GET/LOCATE MODE DCB                                        
+*                                                                 
+         LOAD  EPLOC==CL8'DCBGL'       LOAD DCBGL                 
+         LR    3,0                     R3 -> DCBGL                
+         LR    1,0                     R1 -> DCBGL                
+         USING IHADCB,1                                           
+         L     1,DCBDCBE               R1 -> DCBE                 
+         LA    0,EODAD                 R0 = END-OF-DATA ADDRESS   
+         ST    0,DCBEEODA-DCBE(,1)     STORE IN DCBE              
+*                                                                 
+         XC    DMLIST(2*8),DMLIST      INIT DATA MGMT LIST AREA   
+         OI    DMLAST,X'80'            SET "LAST IN LIST"         
+*                                                                 
+         OPEN  MODE=31,MF=(E,DMLIST),((2),OUTPUT,(3))             
+*                                                                 
+*                                      GET OUTPUT DCB FIELDS         
+         LR    1,2                       R1 -> OUTPUT DCB            
+         MVC   OUTLEN,DCBLRECL           GET OUTPUT LRECL            
+         ICM   15,7,DCBPUTA              R15 -> PUT ROUTINE          
+         STM   15,1,PUT@                 STORE PUT@,,DCB@            
+*                                      GET INPUT DCB FIELDS          
+         LR    1,3                       R1 -> INPUT DCB             
+         ICM   15,7,DCBGETA              R15 -> GET ROUTINE          
+         STM   15,1,GET@                 STORE GET@,,DCB@            
+         DROP  1                                                     
+*                                                                    
+         RETURN 14                     RETURN                        
+*                                                                    
+         LTORG                                                       
+SPACE    DC    X'40'                                                 
+*                                                                    
+DYNSTG   DSECT                                                       
+         DS  18F                                                     
+*                                                                    
+DMLIST   OPEN  MODE=31,(0,,0),MF=L     2-ENTRY DATA MGMT LIST AREA   
+DMLAST   EQU   *-8                     SET LAST IN LIST              
+*                                                             
+GET@     DS   3A                                              
+PUT@     DS   3A                                              
+OUTLEN   DS    H                       OUTPUT LENGTH          
+INLEN    DS    H                       INPUT LENGTH           
+DSLEN    EQU   *-DYNSTG                                       
+         PRINT NOGEN                                          
+         DCBD  DEVD=DA,DSORG=PS                               
+         IHADCBE                                              
+         END   GETPUT                                         
+/*                                                            
+//*----------------------------------------------------------*
+//* LKED = MVS LINKAGE EDITOR                                *
+//*----------------------------------------------------------*
+//LKED    EXEC PGM=IEWL,PARM='LIST,MAP'                       
+//SYSPRINT DD  SYSOUT=*                                       
+//SYSLMOD  DD  DISP=SHR,DSN=<your.loadlib>(GETPUT) 
+//SYSUT1   DD  SPACE=(CYL,1)                                  
+//SYSLIB   DD  DISP=SHR,DSN=SYS1.LINKLIB                      
+//SYSLIN   DD  DSN=*.ASM.SYSLIN,DISP=(OLD,DELETE)             
+//
