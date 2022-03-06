@@ -1,0 +1,36 @@
+//*----------------------------------------------------------*         
+//* ASM = HL ASSEMBLER                                       *         
+//*----------------------------------------------------------*         
+//ASM     EXEC PGM=ASMA90                                              
+//SYSPRINT DD  SYSOUT=*                                                
+//SYSLIN   DD  SPACE=(TRK,1),DISP=(,PASS)                              
+//SYSLIB   DD  DISP=SHR,DSN=SYS1.MACLIB                               
+//SYSUT1   DD  SPACE=(CYL,1)                                           
+//SYSIN    DD  *                                                       
+*---------------------------------------------------------------------*
+* QSAM PUT/LOCATE DCB + DCBE                                          *
+*---------------------------------------------------------------------*
+DCBPL  RMODE 24                                                        
+DCBPL  CSECT                                                           
+DCB    DCB   DSORG=PS,DDNAME=OUTFILE,MACRF=PL,DCBE=DCBE,EXLST=0        
+*---------------------------------------------------------------------*
+* DCBE FOR QSAM PUT/LOCATE DCB                                        *
+*---------------------------------------------------------------------*
+DCBE   RMODE 31                                                        
+DCBE   CSECT                                                           
+       DCBE  BLKSIZE=0,RMODE31=BUFF                             
+       END   DCBPL                                              
+       PUNCH ' MODE RMODE(SPLIT)'                               
+       PUNCH ' SETOPT PARM(REUS=NONE,FETCHOPT=(PACK,PRIME))'    
+       END                                                      
+/*                                                              
+//*----------------------------------------------------------*  
+//* LKED = MVS LINKAGE EDITOR                                *  
+//*----------------------------------------------------------*  
+//LKED    EXEC PGM=IEWL,PARM='LIST,MAP'                         
+//SYSPRINT DD  SYSOUT=*                                         
+//SYSLMOD  DD  DISP=SHR,DSN=<your.loadlib>(DCBPL)     
+//SYSUT1   DD  SPACE=(CYL,1)                                    
+//SYSLIB   DD  DISP=SHR,DSN=SYS1.LINKLIB                        
+//SYSLIN   DD  DSN=*.ASM.SYSLIN,DISP=(OLD,DELETE)               
+//
