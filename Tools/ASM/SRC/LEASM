@@ -1,0 +1,13 @@
+LEASM    CEEENTRY AUTO=DSALEN  ENTRY                
+*                                                   
+* INSERT PROGRAM CODE HERE                          
+*                                                   
+         CEETERM ,             EXIT                 
+PPA      CEEPPA  ,             PROGRAM PROLOG AREA  
+DSA      CEEDSA  ,             DYNAMIC STORAGE AREA 
+*                                                   
+* INSERT DATA DEFINITIONS HERE                      
+*                                                   
+DSALEN   EQU     *-CEEDSA                           
+         CEECAA  ,             COMMON ANCHOR AREA   
+         END                                        
